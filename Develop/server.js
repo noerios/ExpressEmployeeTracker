@@ -72,6 +72,8 @@ function addDepartment() {
 //add role
 
 function addRole() {
+  
+
   inquirer
     .prompt([
       {
@@ -85,16 +87,41 @@ function addRole() {
         message: "What is the salary?"
       }, 
 
+      connection.query("SELECT * FROM department", function(err, results) {
+        if (err) throw err;
+        inquirer
+          .prompt([
+            {
+              name: "dept",
+              type: "rawlist",
+              choices: function() {
+                var choiceArray = [];
+                for (var i = 0; i <results.length; i++) {
+                  choiceArray.push(results[i].id);
+                }
+                return choiceArray;
+              },
+              message: "Which department ID would you like to add?"
+            }
+          ])
+      })
+
+
     ]).then(function(answer) {
       connection.query(
         "INSERT INTO role SET ?",
         {
         title: answer.role_title,
-        salary: answer.salary
-      });
-      start();
+        salary: answer.salary,
+        department_id: answer.dept
+      })
+      
+
+      //start();
     })
 }
+
+
 
 
  //update employee roles - get role id that needs updating, then use that to get one employee to update
@@ -102,3 +129,4 @@ function addRole() {
 //add employees
 
   //add employee roles - inquirer asks which department it belongs to, retrieve all departments and then list them out
+//query the database for department ids
