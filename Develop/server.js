@@ -88,9 +88,10 @@ function addRole() {
     ]).then(function(answer) {
       connection.query(
         "INSERT INTO role SET ?",
-        {title: answer.role_title},
-        {salary: answer.salary}
-      );
+        {
+        title: answer.role_title,
+        salary: answer.salary
+      });
       start();
     })
 }
