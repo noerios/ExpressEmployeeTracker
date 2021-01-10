@@ -24,17 +24,15 @@ connection.connect(function(err) {
   start();
 });
 
-//ask the user what they would like to do
-//add employees
-//update employee roles
 
+//ask the user what they would like to don - add department, role, employee
 function start() {
     inquirer
       .prompt({
         name: "firstChoice",
         type: "list",
         message: "Would you like to [ADD EMPLOYEE], [ADD DEPARTMENT], [ADD ROLE], OR [END PROGRAM]?",
-        choices: ["ADD EMPLOYEE", "ADD DEPARTMENT", "ADD ROLE"]
+        choices: ["ADD EMPLOYEE", "ADD DEPARTMENT", "ADD ROLE", "END PROGRAM"]
       })
       .then(function(answer) {
         // based on their answer, either call the bid or the post functions
@@ -70,4 +68,36 @@ function addDepartment() {
       start();
     })
 }
+
+//add role
+
+function addRole() {
+  inquirer
+    .prompt([
+      {
+        name: "role_title",
+        type: "input",
+        message: "What is the title of the role?"
+      },
+      {
+        name: "salary",
+        type: "number",
+        message: "What is the salary?"
+      }, 
+
+    ]).then(function(answer) {
+      connection.query(
+        "INSERT INTO role SET ?",
+        {title: answer.role_title},
+        {salary: answer.salary}
+      );
+      start();
+    })
+}
+
+
+ //update employee roles - get role id that needs updating, then use that to get one employee to update
+
+//add employees
+
   //add employee roles - inquirer asks which department it belongs to, retrieve all departments and then list them out
