@@ -69,10 +69,10 @@ function addDepartment() {
     })
 };
 
-function addRole() {
+async function addRole() {
 //add employee roles - inquirer asks which department it belongs to, retrieve all departments and then list them out
 //query the database for department ids
-connection.query("SELECT * FROM department", function(err, res) {
+connection.query("SELECT * FROM department", function(err, results) {
   if(err) throw err;
 
 inquirer
@@ -82,10 +82,10 @@ inquirer
       type: "rawlist",
       choices: function() {
         var idArray = [];
-  for (var i = 0; i < results.length; i++) {
-    idArray.push(results[i].id);
-  } 
-  return idArray;
+        for (var i = 0; i < results.length; i++) {
+          idArray.push(results[i].id);
+        } 
+        return idArray;
       },
       message: "Which department does this role fall within?"
     },
@@ -106,7 +106,7 @@ inquirer
       {
         title: answer.role_title,
         salary: answer.salary,
-        department_id: answer.dept
+        department_id: answer.deptId 
       }
     )
   });
