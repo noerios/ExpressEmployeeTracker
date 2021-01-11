@@ -67,60 +67,51 @@ function addDepartment() {
       );
       start();
     })
-}
-
-//add role
+};
 
 function addRole() {
-  
+//add employee roles - inquirer asks which department it belongs to, retrieve all departments and then list them out
+//query the database for department ids
+connection.query("SELECT * FROM department", function(err, res) {
+  if(err) throw err;
 
-  inquirer
-    .prompt([
-      {
-        name: "role_title",
-        type: "input",
-        message: "What is the title of the role?"
+inquirer
+  .prompt ([
+    {
+      name: "deptId",
+      type: "rawlist",
+      choices: function() {
+        var idArray = [];
+  for (var i = 0; i < results.length; i++) {
+    idArray.push(results[i].id);
+  } 
+  return idArray;
       },
+      message: "Which department does this role fall within?"
+    },
+    {
+      name: "role_title",
+      type: "input",
+      message: "What is the title of the role?"
+    },
+    {
+      name: "salary",
+      type: "number",
+      message: "What is the salary?"
+    }, 
+  ])
+  .then(function(answer) {
+    connection.query(
+      "INSERT INTO role SET ?",
       {
-        name: "salary",
-        type: "number",
-        message: "What is the salary?"
-      }, 
-
-      connection.query("SELECT * FROM department", function(err, results) {
-        if (err) throw err;
-        inquirer
-          .prompt([
-            {
-              name: "dept",
-              type: "rawlist",
-              choices: function() {
-                var choiceArray = [];
-                for (var i = 0; i <results.length; i++) {
-                  choiceArray.push(results[i].id);
-                }
-                return choiceArray;
-              },
-              message: "Which department ID would you like to add?"
-            }
-          ])
-      })
-
-
-    ]).then(function(answer) {
-      connection.query(
-        "INSERT INTO role SET ?",
-        {
         title: answer.role_title,
         salary: answer.salary,
         department_id: answer.dept
-      })
-      
-
-      //start();
-    })
+      }
+    )
+  });
+});
 }
-
 
 
 
@@ -128,5 +119,4 @@ function addRole() {
 
 //add employees
 
-  //add employee roles - inquirer asks which department it belongs to, retrieve all departments and then list them out
-//query the database for department ids
+  
