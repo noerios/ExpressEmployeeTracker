@@ -69,7 +69,7 @@ function addDepartment() {
     })
 };
 
-async function addRole() {
+function addRole() {
 //add employee roles - inquirer asks which department it belongs to, retrieve all departments and then list them out
 //query the database for department ids
 connection.query("SELECT * FROM department", function(err, results) {
@@ -109,14 +109,80 @@ inquirer
         department_id: answer.deptId 
       }
     )
+    start();
   });
 });
+};
+
+//add employees
+
+function addEmployee() {
+  connection.query("SELECT * FROM role", function(err, results) {
+    if (err) throw err;
+
+    inquirer
+    .prompt ([
+      {
+        name: "roleId",
+        type: "rawlist",
+        choices: function() {
+          var idArray = [];
+          for (var i = 0; i < results.length; i++) {
+            idArray.push(results[i].id);
+          } 
+          return idArray;
+        },
+        message: "Which role ID is associated with this employee?"
+      },
+      {
+        name: "firstName",
+        type: "input",
+        message: "What is the employee's first name?"
+      },
+      {
+        name: "lastName",
+        type: "input",
+        message: "What is the employee's last name?"
+      },
+    ])
+    
+  connection.query("SELECT * FROM employee", function(err, results) {
+    if (err) throw err;
+
+    inquirer
+    .prompt ([
+      {
+        name: "mgrId",
+        type: "rawlist",
+        choices: function() {
+          var idArray = [];
+          for (var i = 0; i < results.length; i++) {
+            idArray.push(results[i].id);
+          } 
+          return idArray;
+        },
+        message: "Which manager ID is does this employee report to?"
+      },
+    ]).then(function(answer) {
+      connection.query(
+        "INSERT INTO role SET ?",
+        {
+          first_name: answer.firstName,
+          last_name: answer.lastName,
+          role_id: answer.roleId,
+          manager_id: answer.mgrId 
+        }
+      )
+      start();
+    });
+  })
+  })
+
+
 }
-
-
 
  //update employee roles - get role id that needs updating, then use that to get one employee to update
 
-//add employees
+
 
   
