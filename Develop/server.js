@@ -2,6 +2,7 @@ var mysql = require("mysql");
 var inquirer = require("inquirer");
 const { allowedNodeEnvironmentFlags } = require("process");
 
+
 // create the connection information for the sql database
 var connection = mysql.createConnection({
   host: "localhost",
@@ -23,6 +24,7 @@ connection.connect(function(err) {
   // run the start function after the connection is made to prompt the user
   start();
 });
+
 
 
 //ask the user what they would like to don - add department, role, employee
@@ -50,6 +52,31 @@ function start() {
         }
       });
   }
+
+  function secondary() {
+    inquirer
+      .prompt({
+        name: "secondChoice",
+        type: "list",
+        message: "Would you like to [SHOW EMPLOYEES], [SHOW DEPARTMENTS], [SHOW ROLES], OR [START OVER]?",
+        choices: ["SHOW EMPLOYEES", "SHOW DEPARTMENTS", "SHOW ROLES", "START OVER"]
+      })
+      .then(function(answer) {
+        // based on their answer, either call the bid or the post functions
+        if (answer.secondChoice === "SHOW EMPLOYEES") {
+          showEmployee();
+        }
+        else if(answer.secondChoice === "SHOW DEPARTMENTS") {
+          showDepartment();
+        } 
+        else if(answer.secondChoice === "SHOW ROLES") {
+            showRole(); 
+        }
+        else if(answer.secondChoice === "START OVER") {
+            start();
+        }
+      });
+  }
 //add dept
 
 function addDepartment() {
@@ -65,7 +92,7 @@ function addDepartment() {
         "INSERT INTO department SET ?",
         {name: answer.department_name}
       );
-      start();
+      secondary();
     })
 };
 
@@ -109,7 +136,8 @@ inquirer
         department_id: answer.deptId 
       }
     )
-    start();
+    
+    secondary();
   });
 });
 };
@@ -146,7 +174,7 @@ function addEmployee() {
       },
     ])
     
-  connection.query("SELECT * FROM employee", function(err, results) {
+  connection.query("SELECT * FROM employee", function(err, newResults) {
     if (err) throw err;
 
     inquirer
@@ -156,8 +184,8 @@ function addEmployee() {
         type: "rawlist",
         choices: function() {
           var idArray = [];
-          for (var i = 0; i < results.length; i++) {
-            idArray.push(results[i].id);
+          for (var i = 0; i < newResults.length; i++) {
+            idArray.push(newResults[i].id);
           } 
           return idArray;
         },
@@ -173,12 +201,33 @@ function addEmployee() {
           manager_id: answer.mgrId 
         }
       )
-      start();
+      secondary();
     });
-  })
-  })
+  });
+  });
+}
 
+//show department data
+function showDepartment() {
+  connection.query("SELECT * FROM department", function(err, results) {
+    if(err) throw err;
+    console.table(results);
+  });  
+};
 
+//show role data
+function showRole() {
+  connection.query("SELECT * FROM role", function(err, results) {
+    if(err) throw err;
+    console.table(results);
+  });  
+};
+
+function showEmployee() {
+  connection.query("SELECT * FROM employee", function(err, results) {
+    if(err) throw err;
+    console.table(results);
+  });  
 }
 
  //update employee roles - get role id that needs updating, then use that to get one employee to update
